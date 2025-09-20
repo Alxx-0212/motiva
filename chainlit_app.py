@@ -5,9 +5,7 @@ import enum
 from datetime import datetime, timezone
 import pytz
 from pydantic import BaseModel, Field
-from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, func, select, create_engine
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey, func, select
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.dialects.postgresql import UUID
@@ -24,7 +22,7 @@ from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser
 from langchain.agents.format_scratchpad import format_to_openai_functions
 from langchain.schema.agent import AgentFinish
 from langchain.schema.runnable import RunnablePassthrough
-
+from typing import Dict, Optional
 import chainlit as cl
 from chainlit.data.sql_alchemy import SQLAlchemyDataLayer
 from chainlit.types import ThreadDict
@@ -43,8 +41,6 @@ from langchain.memory import ConversationBufferMemory
 from chainlit.types import ThreadDict
 
 load_dotenv(find_dotenv(), override=True)
-
-import asyncio
 
 # async def local_to_utc(local_dt, timezone_str):
 #     """Convert local datetime to UTC."""
@@ -263,9 +259,8 @@ async def update_task(
             await session.rollback()
             return f"Error updating task: {e}"
 
-
-class UpdateTaskInput(BaseModel):
-    message: str = Field(..., description="Message to ask user for confirmation")
+# class UpdateTaskInput(BaseModel):
+#     message: str = Field(..., description="Message to ask user for confirmation")
 
 # async def ask_user_for_confirmation(message : str):
     
@@ -417,6 +412,15 @@ def authorize(email: str, password: str):
     finally:
         session.close()
 
+# @cl.oauth_callback
+# def oauth_callback(
+#   provider_id: str,
+#   token: str,
+#   raw_user_data: Dict[str, str],
+#   default_user: cl.User,
+# ) -> Optional[cl.User]:
+#   return default_user
+
 @cl.data_layer
 def get_data_layer():
     return SQLAlchemyDataLayer(conninfo=os.getenv("ASYNC_CHAINLIT_DB_URL"))
@@ -449,7 +453,6 @@ async def on_chat_start():
     current_date = user_time.strftime("%A %Y-%m-%d %I:%M:%S %p")
 
     await setup_runnable(date=current_date, user_id=user_id, user_timezone=user_timezone)
-
 
 @cl.on_chat_resume
 async def on_chat_resume(thread: ThreadDict):

@@ -12,6 +12,9 @@ services:
     ports:
       - "${HOST_PORT}:5432"
     volumes:
+      - ./chainlit_db_data.dump:/docker-entrypoint-initdb.d/chainlit_db_data.dump
+      - ./200925_data.dump:/docker-entrypoint-initdb.d/200925_data.dump
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
       - postgres-data:/var/lib/postgresql/data
   pgadmin:
     image: dpage/pgadmin4
@@ -24,6 +27,31 @@ services:
       - "${PGADMIN_PORT}:80"
     volumes:
       - pgadmin-data:/var/lib/pgadmin
+  motiva:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    container_name: motiva
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${POSTGRES_SCHEMA}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - CHAINLIT_DB=${CHAINLIT_DB}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION}
+      - AZURE_OPENAI_DEPLOYMENT_NAME=${AZURE_OPENAI_DEPLOYMENT_NAME}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - DATABASE_URL=${DATABASE_URL}
+      - ASYNC_DATABASE_URL=${ASYNC_DATABASE_URL}
+      - ASYNC_CHAINLIT_DB_URL=${ASYNC_CHAINLIT_DB_URL}
+      - CHAINLIT_AUTH_SECRET=${CHAINLIT_AUTH_SECRET}
+    ports:
+      - "8000:8000"
 volumes:
   postgres-data:
   pgadmin-data:

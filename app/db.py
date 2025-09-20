@@ -1,14 +1,20 @@
 import os
-# import asyncio
+from dotenv import load_dotenv, find_dotenv
+import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-# from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 # from models import User
 # from auth import verify_password, get_password_hash
 
-# asyncpg is used for async database operations
+load_dotenv(find_dotenv(), override=True)
+DATABASE_URL = os.getenv("DATABASE_URL")
 ASYNC_DATABASE_URL = os.getenv("ASYNC_DATABASE_URL")
+ASYNC_CHAINLIT_DB_URL = os.getenv("ASYNC_CHAINLIT_DB_URL")
+
+# asyncpg is used for async database operations
+ASYNC_DATABASE_URL = ASYNC_DATABASE_URL
 async_engine = create_async_engine(
     ASYNC_DATABASE_URL,
     pool_size=10,
@@ -19,7 +25,7 @@ AsyncSessionLocal = sessionmaker(
 )
 
 # synchronous database operations
-DATABASE_URL = "postgresql://postgres:postgres@localhost:1234/postgres"
+DATABASE_URL = DATABASE_URL
 engine = create_engine(DATABASE_URL)
 
 Session = sessionmaker(
@@ -27,7 +33,7 @@ Session = sessionmaker(
     expire_on_commit=False
 )
 
-ASYNC_CHAINLIT_DB_URL = os.getenv("ASYNC_CHAINLIT_DB_URL")
+ASYNC_CHAINLIT_DB_URL = ASYNC_CHAINLIT_DB_URL
 async_chainlit_engine = create_async_engine(
     ASYNC_CHAINLIT_DB_URL,
     pool_size=10,
