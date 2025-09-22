@@ -157,7 +157,6 @@ Once logged in, you can interact with the agent using natural language:
 - `original_timezone`: User's timezone when created
 - `priority`: Enum (LOW, MEDIUM, HIGH)
 - `status`: Enum (ACTIVE, COMPLETED)
-- `recurrence_rule`: RFC 5545 RRULE for repeating tasks
 
 ## Configuration ⚙️
 
@@ -175,6 +174,7 @@ The LangChain agent is configured with:
 - **Tools**: `get_user_tasks`, `add_task`, `update_task`
 - **Memory**: Conversation buffer for context retention
 - **Approval Protocol**: User confirmation required for modifications
+- **Reasoning**: Uses the ReAct framework with a scratchpad to record intermediate thoughts and actions
 
 ## Security Considerations 🔒
 
